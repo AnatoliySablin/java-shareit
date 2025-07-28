@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ModelNotFoundException;
 import ru.practicum.shareit.exception.NoRootException;
@@ -17,15 +17,10 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-
-    @Autowired
-    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository) {
-        this.itemRepository = itemRepository;
-        this.userRepository = userRepository;
-    }
 
     @Override
     public ItemDto addItem(ItemDto itemDto, long userId) {
@@ -78,8 +73,14 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto getItemEachUserById(long itemId) {
         Item item = itemRepository.getItemById(itemId);
+
+        if (item == null) {
+            throw new ModelNotFoundException(String.format("Элемент с ID %d не найден", itemId));
+        }
+
         return ItemMapper.toItemDto(item);
     }
+
 
     @Override
     public List<ItemDto> getAllItemsOfOwner(long userId) {
@@ -100,9 +101,5 @@ public class ItemServiceImpl implements ItemService {
     private boolean isUserExist(long userId) {
         User user = userRepository.getUser(userId);
         return user != null;
-    }
-
-    private boolean isOwner(long itemId, long userId) {
-        return itemRepository.getItemById(itemId).getOwner().getId() == userId;
     }
 }

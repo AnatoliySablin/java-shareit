@@ -1,9 +1,8 @@
 package ru.practicum.shareit.user;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.IdGenerator;
 import ru.practicum.shareit.exception.EntityAlreadyExistException;
 import ru.practicum.shareit.exception.ModelNotFoundException;
 
@@ -13,15 +12,9 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final IdGenerator idGenerator;
-
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, IdGenerator idGenerator) {
-        this.userRepository = userRepository;
-        this.idGenerator = idGenerator;
-    }
 
     @Override
     public UserDto addUser(UserDto userDto) {
@@ -30,7 +23,6 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = UserMapper.toUser(userDto);
-        user.setId(idGenerator.getId());
         return UserMapper.toUserDto(userRepository.addUser(user));
     }
 

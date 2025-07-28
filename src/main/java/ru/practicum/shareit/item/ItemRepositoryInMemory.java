@@ -18,7 +18,7 @@ public class ItemRepositoryInMemory implements ItemRepository {
 
     @Override
     public Item addItem(Item item) {
-        item.setId(++idCounter); // Генерируем ID здесь
+        item.setId(++idCounter);
         userItemIndex.computeIfAbsent(item.getOwner().getId(), k -> new ArrayList<>());
         userItemIndex.get(item.getOwner().getId()).add(item);
         items.put(item.getId(), item);

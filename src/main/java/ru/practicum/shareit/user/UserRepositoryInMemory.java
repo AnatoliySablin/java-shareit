@@ -13,9 +13,11 @@ import java.util.Set;
 public class UserRepositoryInMemory implements UserRepository {
     private final Map<Long, User> allUsers = new HashMap<>();
     private final Set<String> emailUniqSet = new HashSet<>();
+    private long idCounter = 0;
 
     @Override
     public User addUser(User user) {
+        user.setId(++idCounter);
         allUsers.put(user.getId(), user);
         emailUniqSet.add(user.getEmail());
         return user;
