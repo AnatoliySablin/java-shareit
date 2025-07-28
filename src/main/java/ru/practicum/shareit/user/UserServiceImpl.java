@@ -24,11 +24,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto addUser(UserDto userDto) {
-        if (isValid(userDto)) {
-            User user = UserMapper.toUser(userDto);
-            user.setId(idGenerator.getId());
-            return UserMapper.toUserDto(userRepository.addUser(user));
-        } else {
+        if (!isValid(userDto)) {
             throw new ValidationException("""
                     {
                       "error": "Email already exists",
@@ -36,25 +32,30 @@ public class UserServiceImpl implements UserService {
                     }
                     """);
         }
+
+        User user = UserMapper.toUser(userDto);
+        user.setId(idGenerator.getId());
+        return UserMapper.toUserDto(userRepository.addUser(user));
     }
 
+
     @Override
-    public UserDto updateUser(Long userId, UserDto patchUSer) {
+    public UserDto updateUser(Long userId, UserDto patchUser) {
         User oldUser = UserMapper.toUser(getUser(userId));
-        User result = patch(oldUser, UserMapper.toUser(patchUSer));
+        User result = patch(oldUser, UserMapper.toUser(patchUser));
         UserDto userDto = UserMapper.toUserDto(result);
         if (isValidPatch(userDto)) {
             userRepository.updateUser(result, userId);
             return userDto;
-        } else {
-            throw new EntityAlreadyExistException("""
-                    {
-                      "error": "Email already exists",
-                      "code": 409
-                    }
-                    """);
         }
+        throw new EntityAlreadyExistException("""
+                {
+                  "error": "Email already exists",
+                  "code": 409
+                }
+                """);
     }
+
 
     private User patch(User user, User patchUser) {
         if (patchUser.getName() != null) {
