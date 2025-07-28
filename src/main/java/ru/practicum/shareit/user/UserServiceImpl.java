@@ -44,10 +44,12 @@ public class UserServiceImpl implements UserService {
         User oldUser = UserMapper.toUser(getUser(userId));
         User result = patch(oldUser, UserMapper.toUser(patchUser));
         UserDto userDto = UserMapper.toUserDto(result);
+
         if (isValidPatch(userDto)) {
             userRepository.updateUser(result, userId);
             return userDto;
         }
+
         throw new EntityAlreadyExistException("""
                 {
                   "error": "Email already exists",
