@@ -3,7 +3,6 @@ package ru.practicum.shareit.item;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.IdGenerator;
 import ru.practicum.shareit.exception.ModelNotFoundException;
 import ru.practicum.shareit.exception.NoRootException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -21,13 +20,11 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private final IdGenerator idGenerator;
 
     @Autowired
-    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, IdGenerator idGenerator) {
+    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
-        this.idGenerator = idGenerator;
     }
 
     @Override
@@ -35,8 +32,7 @@ public class ItemServiceImpl implements ItemService {
         if (isUserExist(userId)) {
             User owner = userRepository.getUser(userId);
             Item item = ItemMapper.toItem(itemDto, owner);
-            item.setId(idGenerator.getId());
-            itemRepository.addItem(item);
+            itemRepository.addItem(item); // Теперь ID генерируется в репозитории
             return ItemMapper.toItemDto(item);
         } else {
             throw new ModelNotFoundException(String.format("User %s not found", userId));
@@ -45,16 +41,21 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(ItemDto patchItem, long itemId, long userId) {
-        if (isOwner(itemId, userId)) {
-            Item oldItem = getItemById(itemId);
-            User owner = userRepository.getUser(userId);
-            Item result = patch(oldItem, ItemMapper.toItem(patchItem, owner));
-            ItemDto itemDto = ItemMapper.toItemDto(result);
-            itemRepository.updateItem(result);
-            return itemDto;
-        } else {
+        User owner = userRepository.getUser(userId);
+        if (owner == null) {
+            throw new ModelNotFoundException(String.format("User %s not found", userId));
+        }
+        Item oldItem = itemRepository.getItemById(itemId);
+        if (oldItem == null) {
+            throw new ModelNotFoundException(String.format("Item %s not found", itemId));
+        }
+        if (oldItem.getOwner().getId() != userId) {
             throw new NoRootException(String.format("Access is forbidden. User %s doesn't have access rights", userId));
         }
+        Item result = patch(oldItem, ItemMapper.toItem(patchItem, owner));
+        ItemDto itemDto = ItemMapper.toItemDto(result);
+        itemRepository.updateItem(result);
+        return itemDto;
     }
 
     private Item patch(Item item, Item patchItem) {
@@ -98,7 +99,7 @@ public class ItemServiceImpl implements ItemService {
 
     private boolean isUserExist(long userId) {
         User user = userRepository.getUser(userId);
-        return userRepository.getAllUsers().contains(user);
+        return user != null;
     }
 
     private boolean isOwner(long itemId, long userId) {

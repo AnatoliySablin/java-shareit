@@ -5,9 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.IdGenerator;
 import ru.practicum.shareit.exception.EntityAlreadyExistException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.exception.ModelNotFoundException;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,11 +26,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto addUser(UserDto userDto) {
         if (!isValid(userDto)) {
-            throw new ValidationException("{" +
-                    "  \"error\": \"Email already exists\"," +
-                    "  \"code\": 409" +
-                    "}")
-                    ;
+            throw new EntityAlreadyExistException("Email уже существует");
         }
 
         User user = UserMapper.toUser(userDto);
@@ -40,20 +37,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(Long userId, UserDto patchUser) {
-        User oldUser = UserMapper.toUser(getUser(userId));
-        User result = patch(oldUser, UserMapper.toUser(patchUser));
-        UserDto userDto = UserMapper.toUserDto(result);
-
-        if (isValidPatch(userDto)) {
-            userRepository.updateUser(result, userId);
-            return userDto;
+        UserDto existingUserDto = getUser(userId);
+        if (existingUserDto == null) {
+            throw new ModelNotFoundException(String.format("Пользователь с ID %d не найден", userId));
         }
 
-        throw new EntityAlreadyExistException("{\n" +
-                "    \"error\": \"Email already exists\",\n" +
-                "    \"code\": 409\n" +
-                "}")
-                ;
+        User oldUser = UserMapper.toUser(existingUserDto);
+        User updatedUser = UserMapper.toUser(patchUser);
+        User result = patch(oldUser, updatedUser);
+        UserDto userDto = UserMapper.toUserDto(result);
+
+        if (Objects.equals(oldUser.getEmail(), updatedUser.getEmail())) {
+            if (!isValid(userDto)) {
+                throw new EntityAlreadyExistException("Email уже существует");
+            }
+        }
+
+        userRepository.updateUser(result, userId);
+        return userDto;
     }
 
 
@@ -70,8 +71,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUser(Long userId) {
         User user = userRepository.getUser(userId);
+        if (user == null) {
+            throw new ModelNotFoundException(String.format("User with id %s not found", userId));
+        }
         return UserMapper.toUserDto(user);
     }
+
 
     @Override
     public void deleteUser(Long userId) {
@@ -87,12 +92,5 @@ public class UserServiceImpl implements UserService {
 
     private boolean isValid(UserDto user) {
         return userRepository.checkEmail(user.getEmail());
-    }
-
-    private boolean isValidPatch(UserDto userDto) {
-        long number = getAllUsers().stream().filter(x -> x.getEmail().equals(userDto.getEmail()))
-                .filter(x -> x.getId() != (userDto.getId()))
-                .count();
-        return number < 1;
     }
 }

@@ -14,35 +14,34 @@ public class MyExceptionHandler {
     @ExceptionHandler({EntityAlreadyExistException.class,
             ValidationException.class,
             MethodArgumentNotValidException.class})
-    public ResponseEntity<String> handlerAlreadyExist(RuntimeException ex) {
+    public ResponseEntity<ErrorResponse> handleConflict(RuntimeException ex) {
         log.error(ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(ex.getMessage());
+                .body(new ErrorResponse(ex.getMessage()));
     }
 
     @ExceptionHandler
-    public ResponseEntity<String> handleNotFound(ModelNotFoundException ex) {
+    public ResponseEntity<ErrorResponse> handleNotFound(ModelNotFoundException ex) {
         log.error(ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
+                .body(new ErrorResponse(ex.getMessage()));
     }
 
     @ExceptionHandler
-    public ResponseEntity<String> handleNoRoot(NoRootException ex) {
+    public ResponseEntity<ErrorResponse> handleForbidden(NoRootException ex) {
         log.error(ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(ex.getMessage());
+                .body(new ErrorResponse(ex.getMessage()));
     }
 
     @ExceptionHandler
-    public ResponseEntity<String> handleAllException(Throwable ex) {
+    public ResponseEntity<ErrorResponse> handleAllException(Throwable ex) {
         log.error(ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ex.getMessage());
+                .body(new ErrorResponse(ex.getMessage()));
     }
-
 }

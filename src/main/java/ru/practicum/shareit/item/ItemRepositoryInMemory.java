@@ -14,9 +14,11 @@ import java.util.stream.Collectors;
 public class ItemRepositoryInMemory implements ItemRepository {
     private final Map<Long, Item> items = new HashMap<>();
     private final Map<Long, List<Item>> userItemIndex = new LinkedHashMap<>();
+    private long idCounter = 0;
 
     @Override
     public Item addItem(Item item) {
+        item.setId(++idCounter); // Генерируем ID здесь
         userItemIndex.computeIfAbsent(item.getOwner().getId(), k -> new ArrayList<>());
         userItemIndex.get(item.getOwner().getId()).add(item);
         items.put(item.getId(), item);
@@ -36,10 +38,9 @@ public class ItemRepositoryInMemory implements ItemRepository {
 
     @Override
     public List<Item> getAllItemsOfOwner(long userId) {
-        return items.values().stream()
-                .filter(x -> x.getOwner().getId() == userId)
-                .collect(Collectors.toList());
+        return userItemIndex.getOrDefault(userId, List.of());
     }
+
 
     @Override
     public List<Item> getAllItemsAvailableToRent(String text) {
