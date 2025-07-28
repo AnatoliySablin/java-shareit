@@ -25,12 +25,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto addUser(UserDto userDto) {
         if (!isValid(userDto)) {
-            throw new ValidationException("""
-                    {
-                      "error": "Email already exists",
-                      "code": 409
-                    }
-                    """);
+            throw new ValidationException("{" +
+                    "  \"error\": \"Email already exists\"," +
+                    "  \"code\": 409" +
+                    "}")
+                    ;
         }
 
         User user = UserMapper.toUser(userDto);
@@ -50,12 +49,11 @@ public class UserServiceImpl implements UserService {
             return userDto;
         }
 
-        throw new EntityAlreadyExistException("""
-                {
-                  "error": "Email already exists",
-                  "code": 409
-                }
-                """);
+        throw new EntityAlreadyExistException("{\n" +
+                "    \"error\": \"Email already exists\",\n" +
+                "    \"code\": 409\n" +
+                "}")
+                ;
     }
 
 
