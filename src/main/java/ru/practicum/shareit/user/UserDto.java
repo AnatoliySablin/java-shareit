@@ -1,16 +1,14 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.user;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.Create;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class ItemDto {
+public class UserDto {
 
     private long id;
 
@@ -18,8 +16,6 @@ public class ItemDto {
     private String name;
 
     @NotBlank(groups = Create.class)
-    private String description;
-
-    @NotNull(groups = Create.class)
-    private Boolean available;
+    @Pattern(regexp = "^(.+)@(\\S+)$", groups = Create.class)
+    private String email;
 }
