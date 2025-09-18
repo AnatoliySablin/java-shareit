@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      postgresql:
+      postgresql:  # Важно правильно указать имя сервиса
         image: postgres:13
         env:
           POSTGRES_USER: test
@@ -35,7 +35,11 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Wait for PostgreSQL to start
-        run: docker exec postgres pg_isready -U test
+        run: |
+          # Используем правильное имя контейнера из секции services
+          until pg_isready -U test -d shareit -h localhost -p 5432; do
+            sleep 2;
+          done
 
       - name: Build with Maven
         run: mvn clean verify -Dmaven.compiler.release=17
