@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.exception.ModelNotFoundException;
+import ru.practicum.shareit.exception.NoRootException;
 import ru.practicum.shareit.exception.UnknownStateException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
@@ -41,15 +42,22 @@ public class BookingServiceImpl implements ru.practicum.shareit.booking.BookingS
     public BookingDto addBooking(BookItemRequestDto bookItemRequestDto, long userId) {
         Item item = fromOptionalToItem(bookItemRequestDto.getItemId());
         User booker = fromOptionalToUser(userId);
+        if (booker == null) {
+            throw new ModelNotFoundException("Пользователь с ID " + userId + " не найден");
+        }
+        if (item.getAvailable() == null || !item.getAvailable()) {
+            throw new ValidationException("Предмет с ID " + item.getId() + " недоступен для бронирования");
+        }
         if (isValid(bookItemRequestDto, item, booker)) {
             Booking booking = BookingMapper.toBooking(bookItemRequestDto, item, booker);
             booking.setStatus(Status.WAITING);
             Booking result = bookingRepository.save(booking);
             return BookingMapper.toBookingDto(result);
         } else {
-            throw new ValidationException("Validation exception");
+            throw new ValidationException("Ошибка валидации данных бронирования");
         }
     }
+
 
     @Transactional
     @Override
@@ -142,7 +150,7 @@ public class BookingServiceImpl implements ru.practicum.shareit.booking.BookingS
         Item item;
         item = booking.getItem();
         if (item.getOwner().getId() != userId) {
-            throw new ModelNotFoundException("User not found");
+            throw new NoRootException("User not found");
         } else if (!item.getAvailable()) {
             throw new ValidationException("Item is not available");
         }
