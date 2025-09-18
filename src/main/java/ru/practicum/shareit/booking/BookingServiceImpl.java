@@ -48,6 +48,7 @@ public class BookingServiceImpl implements ru.practicum.shareit.booking.BookingS
         if (item.getAvailable() == null || !item.getAvailable()) {
             throw new ValidationException("Предмет с ID " + item.getId() + " недоступен для бронирования");
         }
+
         if (isValid(bookItemRequestDto, item, booker)) {
             Booking booking = BookingMapper.toBooking(bookItemRequestDto, item, booker);
             booking.setStatus(Status.WAITING);
