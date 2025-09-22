@@ -11,11 +11,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -31,15 +29,12 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "booking_id")
-    @EqualsAndHashCode.Exclude
     private long id;
 
     @Column(name = "start_date", nullable = false)
-    @DateTimeFormat
     private LocalDateTime start;
 
     @Column(name = "end_date", nullable = false)
-    @DateTimeFormat
     private LocalDateTime end;
 
     @ManyToOne

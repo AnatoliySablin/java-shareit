@@ -10,7 +10,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,7 +29,6 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "item_id")
-    @EqualsAndHashCode.Exclude
     private long id;
 
     @Column(name = "item_name")
@@ -45,7 +43,7 @@ public class Item {
 
     @ManyToOne
     @JoinColumn(name = "owner_id", referencedColumnName = "user_id")
-    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private User owner;
 
     @Transient

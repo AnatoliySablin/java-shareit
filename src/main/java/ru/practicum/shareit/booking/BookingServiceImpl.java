@@ -16,7 +16,6 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -29,16 +28,12 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-    private final UserService userService;
 
     @Transactional
     @Override
     public BookingDto addBooking(BookItemRequestDto bookItemRequestDto, long userId) {
         Item item = fromOptionalToItem(bookItemRequestDto.getItemId());
-        User booker = fromOptionalToUser(userId);
-        if (booker == null) {
-            throw new ModelNotFoundException("Пользователь с ID " + userId + " не найден");
-        }
+        User booker = getUserById(userId);
         if (item.getAvailable() == null || !item.getAvailable()) {
             throw new ValidationException("Предмет с ID " + item.getId() + " недоступен для бронирования");
         }
@@ -185,18 +180,9 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new ModelNotFoundException(String.format("Booking %d not found", bookingId)));
     }
 
-    private User fromOptionalToUser(long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new ModelNotFoundException(String.format("User %s not found", userId)));
-    }
-
     private User getUserById(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NoRootException(String.format("Пользователь с ID %d не найден", userId)));
-    }
-
-    private boolean isBooked(LocalDateTime start, LocalDateTime end, long itemId) {
-        return bookingRepository.isBooked(start, end, itemId);
     }
 }
 
