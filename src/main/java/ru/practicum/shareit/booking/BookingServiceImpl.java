@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,26 +16,20 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
-public class BookingServiceImpl implements ru.practicum.shareit.booking.BookingService {
-    private final ru.practicum.shareit.booking.BookingRepository bookingRepository;
+public class BookingServiceImpl implements BookingService {
+    private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-
-    @Autowired
-    public BookingServiceImpl(ru.practicum.shareit.booking.BookingRepository bookingRepository,
-                              UserRepository userRepository,
-                              ItemRepository itemRepository) {
-        this.bookingRepository = bookingRepository;
-        this.userRepository = userRepository;
-        this.itemRepository = itemRepository;
-    }
+    private final UserService userService;
 
     @Transactional
     @Override
@@ -148,16 +142,19 @@ public class BookingServiceImpl implements ru.practicum.shareit.booking.BookingS
 
     private Booking checkForApproving(long bookingId, Boolean approved, long userId) {
         Booking booking = fromOptionalToBooking(bookingId);
-        Item item;
-        item = booking.getItem();
+        Item item = booking.getItem();
+        User user = getUserById(userId);
+
         if (item.getOwner().getId() != userId) {
             throw new NoRootException("User not found");
         } else if (!item.getAvailable()) {
             throw new ValidationException("Item is not available");
         }
+
         if (booking.getStatus() == Status.APPROVED) {
             throw new ValidationException("Booking is already approved");
         }
+
         booking.setStatus(approved ? Status.APPROVED : Status.REJECTED);
         return booking;
     }
@@ -191,6 +188,11 @@ public class BookingServiceImpl implements ru.practicum.shareit.booking.BookingS
     private User fromOptionalToUser(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ModelNotFoundException(String.format("User %s not found", userId)));
+    }
+
+    private User getUserById(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NoRootException(String.format("Пользователь с ID %d не найден", userId)));
     }
 
     private boolean isBooked(LocalDateTime start, LocalDateTime end, long itemId) {

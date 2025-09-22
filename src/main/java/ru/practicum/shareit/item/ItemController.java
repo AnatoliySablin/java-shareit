@@ -47,7 +47,6 @@ public class ItemController {
         return result;
     }
 
-    //ЭТОТ
     @GetMapping("/{itemId}")
     public ItemDtoWithDate getItemEachUser(@PathVariable long itemId,
                                            @RequestHeader("X-Sharer-User-Id") long ownerId) {
@@ -70,7 +69,6 @@ public class ItemController {
         return result;
     }
 
-    //пошли комменты
     @PostMapping("/{itemId}/comment")
     public CommentDto addCommentToItem(@Validated(Create.class) @RequestBody CommentDto commentDto,
                                        @PathVariable long itemId,

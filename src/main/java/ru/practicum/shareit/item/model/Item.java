@@ -12,18 +12,19 @@ import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import ru.practicum.shareit.requests.model.ItemRequest;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 @Entity
 @Table(name = "items")
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
 public class Item {
 
     @Id
@@ -49,7 +50,4 @@ public class Item {
 
     @Transient
     private ItemRequest itemRequest;
-
-    public Item() {
-    }
 }

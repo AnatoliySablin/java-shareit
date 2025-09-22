@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.requests.model.ItemRequest;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;

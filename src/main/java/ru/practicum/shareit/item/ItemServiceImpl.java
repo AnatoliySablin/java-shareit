@@ -22,7 +22,7 @@ import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,7 +78,7 @@ public class ItemServiceImpl implements ItemService {
         for (ItemDtoWithDate item : items) {
             addBookingDtoForItemOwner(item);
         }
-        Collections.sort(items, (a, b) -> a.getId() < b.getId() ? -1 : a.getId() == b.getId() ? 0 : 1);
+        items.sort(Comparator.comparingLong(ItemDtoWithDate::getId));
         return items;
     }
 

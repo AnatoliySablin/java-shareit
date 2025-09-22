@@ -17,12 +17,12 @@ import java.time.LocalDateTime;
 public class BookItemRequestDto {
     @NotNull(groups = Create.class)
     @FutureOrPresent(groups = Create.class, message = "Date should be in future")
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @DateTimeFormat
     private LocalDateTime start;
 
     @NotNull(groups = Create.class)
     @Future(groups = Create.class, message = "Date should be in future")
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @DateTimeFormat
     private LocalDateTime end;
 
     private Long itemId;

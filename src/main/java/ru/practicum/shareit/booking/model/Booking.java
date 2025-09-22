@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@EqualsAndHashCode
 @ToString
 @Entity
 @Table(name = "bookings")
@@ -36,11 +35,11 @@ public class Booking {
     private long id;
 
     @Column(name = "start_date", nullable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-ddTHH:mm:ss")
+    @DateTimeFormat
     private LocalDateTime start;
 
     @Column(name = "end_date", nullable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-ddTHH:mm:ss")
+    @DateTimeFormat
     private LocalDateTime end;
 
     @ManyToOne

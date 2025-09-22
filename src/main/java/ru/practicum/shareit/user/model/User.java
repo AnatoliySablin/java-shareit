@@ -9,6 +9,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -16,10 +17,10 @@ import lombok.ToString;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 @ToString
-@EqualsAndHashCode
 public class User {
 
     @Id
@@ -33,7 +34,4 @@ public class User {
 
     @Column(name = "user_email")
     private String email;
-
-    public User() {
-    }
 }
