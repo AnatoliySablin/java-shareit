@@ -12,12 +12,19 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class MyExceptionHandler {
 
     @ExceptionHandler({EntityAlreadyExistException.class,
-            ValidationException.class,
             MethodArgumentNotValidException.class})
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException ex) {
         log.error(ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorResponse> handleValidationError(ValidationException ex) {
+        log.error(ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(ex.getMessage()));
     }
 
@@ -44,4 +51,13 @@ public class MyExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse(ex.getMessage()));
     }
+
+    @ExceptionHandler(ItemNotAvailableException.class)
+    public ResponseEntity<ErrorResponse> handleItemNotAvailable(ItemNotAvailableException ex) {
+        log.error(ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
 }
+

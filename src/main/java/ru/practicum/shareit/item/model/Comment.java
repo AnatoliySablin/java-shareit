@@ -8,44 +8,38 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-@Entity
-@Table(name = "items")
-@AllArgsConstructor
-@NoArgsConstructor
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
-@ToString
-public class Item {
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "comments")
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "item_id")
+    @Column(name = "comment_id")
     private long id;
 
-    @Column(name = "item_name")
-    private String name;
-
-    @Column(name = "item_description")
-    private String description;
-
-    @Column(name = "is_available")
-    private Boolean available;
-
+    @Column(name = "text", nullable = false, length = 4000)
+    private String text;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id", referencedColumnName = "user_id")
-    @ToString.Exclude
-    private User owner;
+    @JoinColumn(name = "item_id", referencedColumnName = "item_id")
+    private Item item;
 
-    @Transient
-    private ItemRequest itemRequest;
+    @ManyToOne
+    @JoinColumn(name = "author_id", referencedColumnName = "user_id")
+    private User author;
+
+    @Column(name = "created")
+    private LocalDateTime created = LocalDateTime.now();
 }

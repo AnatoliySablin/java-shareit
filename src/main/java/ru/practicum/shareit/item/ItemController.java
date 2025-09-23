@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -13,14 +14,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.Create;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithDate;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/items")
 @Slf4j
-@RequiredArgsConstructor
 public class ItemController {
     private final ItemService itemService;
 
@@ -42,15 +45,16 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemEachUser(@PathVariable long itemId) {
-        ItemDto result = itemService.getItemEachUserById(itemId);
+    public ItemDtoWithDate getItemEachUser(@PathVariable long itemId,
+                                           @RequestHeader("X-Sharer-User-Id") long ownerId) {
+        ItemDtoWithDate result = itemService.getItemEachUserById(itemId, ownerId);
         log.info("Get item {}", result);
         return result;
     }
 
     @GetMapping
-    public List<ItemDto> getItemOwnerUser(@RequestHeader("X-Sharer-User-Id") long userId) {
-        List<ItemDto> result = itemService.getAllItemsOfOwner(userId);
+    public List<ItemDtoWithDate> getItemOwnerUser(@RequestHeader("X-Sharer-User-Id") long userId) {
+        List<ItemDtoWithDate> result = itemService.getAllItemsOfOwner(userId);
         log.info("Get all user's {} items", userId);
         return result;
     }
@@ -61,4 +65,12 @@ public class ItemController {
         log.info("Get available items with {}", text);
         return result;
     }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addCommentToItem(@Validated(Create.class) @RequestBody CommentDto commentDto,
+                                       @PathVariable long itemId,
+                                       @RequestHeader("X-Sharer-User-Id") long userId) {
+        return itemService.addCommentToItem(itemId, userId, commentDto);
+    }
+
 }
