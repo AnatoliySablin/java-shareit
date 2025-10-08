@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.client.BaseClient;
+import ru.practicum.shareit.exception.ValidationException;
 
 @Service
 public class BookingClient extends BaseClient {
@@ -23,26 +25,46 @@ public class BookingClient extends BaseClient {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-                        .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
+                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                         .build()
         );
     }
 
-    public ResponseEntity<Object> getBookings(long userId, BookingState state, Integer from, Integer size) {
+    public ResponseEntity<Object> getBookingByUserSorted(long userId, State state, Integer from, Integer size) {
         Map<String, Object> parameters = Map.of(
-                "state", state.name(),
+                "state", state,
                 "from", from,
                 "size", size
         );
         return get("?state={state}&from={from}&size={size}", userId, parameters);
     }
 
-
-    public ResponseEntity<Object> bookItem(long userId, BookItemRequestDto requestDto) {
-        return post("", userId, requestDto);
+    public ResponseEntity<Object> addBooking(BookItemRequestDto bookItemRequestDto, long userId) {
+        LocalDateTime start = bookItemRequestDto.getStart();
+        LocalDateTime end = bookItemRequestDto.getEnd();
+        if (!start.isBefore(end)) {
+            throw new ValidationException("End date should not be before start date");
+        }
+        return post("", userId, bookItemRequestDto);
     }
 
-    public ResponseEntity<Object> getBooking(long userId, Long bookingId) {
+    public ResponseEntity<Object> approveBooking(long bookingId, Boolean approved, long userId) {
+        Map<String, Object> parameters = Map.of(
+                "approved", approved
+        );
+        return patch("/" + bookingId + "?approved={approved}", userId, parameters, null);
+    }
+
+    public ResponseEntity<Object> getBookingByIdIfOwnerOrBooker(long bookingId, long userId) {
         return get("/" + bookingId, userId);
+    }
+
+    public ResponseEntity<Object> getBookingByItemOwner(long ownerId, State state, int from, int size) {
+        Map<String, Object> parameters = Map.of(
+                "state", state,
+                "from", from,
+                "size", size
+        );
+        return get("/owner?state={state}&from={from}&size={size}", ownerId, parameters);
     }
 }
