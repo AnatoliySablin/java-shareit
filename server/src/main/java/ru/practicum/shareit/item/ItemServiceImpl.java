@@ -15,8 +15,8 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.requests.RequestRepository;
-import ru.practicum.shareit.requests.model.Request;
+import ru.practicum.shareit.request.RequestRepository;
+import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 

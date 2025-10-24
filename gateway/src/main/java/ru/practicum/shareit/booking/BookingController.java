@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.Create;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Min;
 
 @RestController
 @RequestMapping(path = "/bookings")

@@ -1,4 +1,4 @@
-package ru.practicum.shareit.requests;
+package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -6,9 +6,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ModelNotFoundException;
-import ru.practicum.shareit.requests.dto.RequestDto;
-import ru.practicum.shareit.requests.dto.RequestMapper;
-import ru.practicum.shareit.requests.model.Request;
+import ru.practicum.shareit.request.dto.RequestDto;
+import ru.practicum.shareit.request.dto.RequestMapper;
+import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 

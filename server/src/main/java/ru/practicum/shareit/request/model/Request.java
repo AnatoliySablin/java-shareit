@@ -1,11 +1,11 @@
-package ru.practicum.shareit.requests.model;
+package ru.practicum.shareit.request.model;
 
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

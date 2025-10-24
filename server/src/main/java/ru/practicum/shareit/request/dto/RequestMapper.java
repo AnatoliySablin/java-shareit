@@ -1,9 +1,9 @@
-package ru.practicum.shareit.requests.dto;
+package ru.practicum.shareit.request.dto;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.practicum.shareit.item.dto.ItemMapperNew;
-import ru.practicum.shareit.requests.model.Request;
+import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;

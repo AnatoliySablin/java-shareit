@@ -1,12 +1,9 @@
 package ru.practicum.shareit.request;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.client.RestTemplate;
 import ru.practicum.shareit.client.BaseClient;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
@@ -17,17 +14,12 @@ public class ItemRequestClient extends BaseClient {
     private static final String API_PREFIX = "/requests";
 
     @Autowired
-    public ItemRequestClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
-        super(
-                builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
-                        .build()
-        );
+    public ItemRequestClient(RestTemplate restTemplate) {
+        super(restTemplate);
     }
 
     public ResponseEntity<Object> addRequest(ItemRequestDto itemRequestDto, long requestorId) {
-        return post("", requestorId, itemRequestDto);
+        return post(API_PREFIX, requestorId, itemRequestDto);
     }
 
     public ResponseEntity<Object> getAllRequestsForRequestor(long requestorId) {
@@ -39,10 +31,10 @@ public class ItemRequestClient extends BaseClient {
                 "from", from,
                 "size", size
         );
-        return get("/all?from={from}&size={size}", requestorId, parameters);
+        return get(API_PREFIX + "/all?from={from}&size={size}", requestorId, parameters);
     }
 
     public ResponseEntity<Object> getOneRequest(long requestId, long userId) {
-        return get("/" + requestId, userId);
+        return get(API_PREFIX + "/" + requestId, userId);
     }
 }

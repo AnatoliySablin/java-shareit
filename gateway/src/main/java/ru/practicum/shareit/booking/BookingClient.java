@@ -1,12 +1,9 @@
 package ru.practicum.shareit.booking;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.client.RestTemplate;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 import ru.practicum.shareit.client.BaseClient;
 import ru.practicum.shareit.exception.ValidationException;
@@ -19,13 +16,8 @@ public class BookingClient extends BaseClient {
     private static final String API_PREFIX = "/bookings";
 
     @Autowired
-    public BookingClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
-        super(
-                builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
-                        .build()
-        );
+    public BookingClient(RestTemplate restTemplate) {
+        super(restTemplate);
     }
 
     public ResponseEntity<Object> getBookingByUserSorted(long userId, State state, Integer from, Integer size) {
@@ -34,7 +26,7 @@ public class BookingClient extends BaseClient {
                 "from", from,
                 "size", size
         );
-        return get("?state={state}&from={from}&size={size}", userId, parameters);
+        return get(API_PREFIX + "?state={state}&from={from}&size={size}", userId, parameters);
     }
 
     public ResponseEntity<Object> addBooking(BookItemRequestDto bookItemRequestDto, long userId) {
@@ -43,18 +35,18 @@ public class BookingClient extends BaseClient {
         if (!start.isBefore(end)) {
             throw new ValidationException("End date should not be before start date");
         }
-        return post("", userId, bookItemRequestDto);
+        return post(API_PREFIX, userId, bookItemRequestDto);
     }
 
     public ResponseEntity<Object> approveBooking(long bookingId, Boolean approved, long userId) {
         Map<String, Object> parameters = Map.of(
                 "approved", approved
         );
-        return patch("/" + bookingId + "?approved={approved}", userId, parameters, null);
+        return patch(API_PREFIX + "/" + bookingId + "?approved={approved}", userId, parameters, null);
     }
 
     public ResponseEntity<Object> getBookingByIdIfOwnerOrBooker(long bookingId, long userId) {
-        return get("/" + bookingId, userId);
+        return get(API_PREFIX + "/" + bookingId, userId);
     }
 
     public ResponseEntity<Object> getBookingByItemOwner(long ownerId, State state, int from, int size) {
@@ -63,6 +55,6 @@ public class BookingClient extends BaseClient {
                 "from", from,
                 "size", size
         );
-        return get("/owner?state={state}&from={from}&size={size}", ownerId, parameters);
+        return get(API_PREFIX + "/owner?state={state}&from={from}&size={size}", ownerId, parameters);
     }
 }

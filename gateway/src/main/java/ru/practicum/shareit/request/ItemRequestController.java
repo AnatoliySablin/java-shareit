@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.Create;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Min;
 
 @RestController
 @RequestMapping(path = "/requests")

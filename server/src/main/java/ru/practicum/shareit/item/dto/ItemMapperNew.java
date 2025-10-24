@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.requests.model.Request;
+import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;

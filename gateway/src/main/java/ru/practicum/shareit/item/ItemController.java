@@ -9,7 +9,7 @@ import ru.practicum.shareit.Create;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Min;
 
 @RestController
 @RequestMapping("/items")
