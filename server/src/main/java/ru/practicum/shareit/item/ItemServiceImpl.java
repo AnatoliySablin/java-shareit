@@ -59,7 +59,7 @@ public class ItemServiceImpl implements ItemService {
         if (isOwner(itemId, userId)) {
             User user = fromOptionalToUser(userId);
             Item item = fromOptionalToItem(itemId);
-            patch(item, itemMapper.toItem(patchItem, user, (item.getRequest() == null ? item.getRequest() : null)));
+            patch(item, itemMapper.toItem(patchItem, user, (item.getRequest() != null ? item.getRequest() : null)));
             return itemMapper.toItemDto(item);
         } else {
             throw new NoRootException(String.format("Access is forbidden. User %s doesn't have access rights", userId));
@@ -107,6 +107,7 @@ public class ItemServiceImpl implements ItemService {
         if (bookingRepository.isExists(itemId, userId, LocalDateTime.now())) {
             User author = fromOptionalToUser(userId);
             Comment comment = itemMapper.toComment(commentDto, item, author);
+            comment.setCreated(LocalDateTime.now());
             commentDto = itemMapper.toCommentDto(commentRepository.save(comment));
         } else {
             throw new ValidationException(String.format("User %s did not book item %s", userId, item.getId()));
@@ -157,7 +158,7 @@ public class ItemServiceImpl implements ItemService {
     private ItemDtoWithDate createItemDtoWithDateWithComments(Item item, List<Comment> comments) {
         ItemDtoWithDate itemDtoWithDate = itemMapper.toItemDtoWithDate(item);
         List<CommentDto> commentsDto = new ArrayList<>();
-        if (comments.size() != 0) {
+        if (!comments.isEmpty()) {
             commentsDto = itemMapper.toListCommentsDto(comments);
         }
         itemDtoWithDate.setComments(commentsDto);

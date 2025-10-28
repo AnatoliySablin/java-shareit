@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.exception.ModelNotFoundException;
+import ru.practicum.shareit.exception.NoRootException;
 import ru.practicum.shareit.exception.UnknownStateException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
@@ -62,7 +63,7 @@ public class BookingServiceImpl implements BookingService {
             if (booking.getBooker().getId() == userId || booking.getItem().getOwner().getId() == userId) {
                 return mapper.toBookingDto(booking);
             } else {
-                throw new ModelNotFoundException("Booking not found");
+                throw new NoRootException("Booking not found");
             }
         }
     }
@@ -75,34 +76,20 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings;
         int page = getPageNumber(from, size);
         Sort sort = Sort.by(Sort.Direction.DESC, "start");
-        switch (state) {
-            case ALL:
-                bookings = bookingRepository.findBookingByBookerId(bookerId,
-                        PageRequest.of(page, size, sort));
-                break;
-            case CURRENT:
-                bookings = bookingRepository.findBookingsCurrentForBooker(bookerId, LocalDateTime.now(),
-                        PageRequest.of(page, size, sort));
-                break;
-            case PAST:
-                bookings = bookingRepository.findBookingsPastForBooker(bookerId, LocalDateTime.now(),
-                        PageRequest.of(page, size, sort));
-                break;
-            case FUTURE:
-                bookings = bookingRepository.findBookingsFutureForBooker(bookerId, LocalDateTime.now(),
-                        PageRequest.of(page, size, sort));
-                break;
-            case WAITING:
-                bookings = bookingRepository.findBookingsByStatusAndBookerId(bookerId, Status.WAITING,
-                        PageRequest.of(page, size, sort));
-                break;
-            case REJECTED:
-                bookings = bookingRepository.findBookingsByStatusAndBookerId(bookerId, Status.REJECTED,
-                        PageRequest.of(page, size, sort));
-                break;
-            default:
-                throw new UnknownStateException("Unknown state: UNSUPPORTED_STATUS");
-        }
+        bookings = switch (state) {
+            case ALL -> bookingRepository.findBookingByBookerId(bookerId,
+                    PageRequest.of(page, size, sort));
+            case CURRENT -> bookingRepository.findBookingsCurrentForBooker(bookerId, LocalDateTime.now(),
+                    PageRequest.of(page, size, sort));
+            case PAST -> bookingRepository.findBookingsPastForBooker(bookerId, LocalDateTime.now(),
+                    PageRequest.of(page, size, sort));
+            case FUTURE -> bookingRepository.findBookingsFutureForBooker(bookerId, LocalDateTime.now(),
+                    PageRequest.of(page, size, sort));
+            case WAITING -> bookingRepository.findBookingsByStatusAndBookerId(bookerId, Status.WAITING,
+                    PageRequest.of(page, size, sort));
+            case REJECTED -> bookingRepository.findBookingsByStatusAndBookerId(bookerId, Status.REJECTED,
+                    PageRequest.of(page, size, sort));
+        };
         return mapper.toListBookingDto(bookings);
     }
 
@@ -149,7 +136,7 @@ public class BookingServiceImpl implements BookingService {
         Item item;
         item = booking.getItem();
         if (item.getOwner().getId() != userId) {
-            throw new ModelNotFoundException("User not found");
+            throw new NoRootException("User has no access to booking");
         } else if (!item.getAvailable()) {
             throw new ValidationException("Item is not available");
         }
@@ -163,7 +150,6 @@ public class BookingServiceImpl implements BookingService {
     private int getPageNumber(int from, int size) {
         return from / size;
     }
-
 
     /* если чекать пересечение else if (isBooked(start, end, item.get().getId())) {
             throw new ValidationException("Dates is already booked");

@@ -3,9 +3,9 @@ package ru.practicum.shareit.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
+import ru.practicum.shareit.SimpleShareItTests;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
@@ -15,14 +15,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-@SpringBootTest//(
-//properties = "db.name=test",
-//webEnvironment = SpringBootTest.WebEnvironment.NONE)
-//@RequiredArgsConstructor(onConstructor_ = @Autowired)
-//@TestPropertySource(locations = "classpath:/application.properties")
-@TestPropertySource(properties = "application.properties")
+@TestPropertySource(value = "classpath:application.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-class UserServiceImplTest {
+class UserServiceImplTest extends SimpleShareItTests {
+
     @Autowired
     private UserServiceImpl userService;
     private UserDto userDto;
@@ -30,29 +26,31 @@ class UserServiceImplTest {
     @BeforeEach
     void setUp() {
         userDto = UserDto.builder()
-                .id(1L)
-                .name("user")
-                .email("user@gmail.com")
-                .build();
+                         .name("user")
+                         .email("user@gmail.com")
+                         .build();
     }
 
     @Test
     void addUser() {
-        userService.addUser(userDto);
-        UserDto result = userService.getUser(1L);
+        UserDto added = userService.addUser(userDto);
+        userDto.setId(added.getId());
+        UserDto result = userService.getUser(userDto.getId());
         assertThat(result.getId(), notNullValue());
         assertThat(result, equalTo(userDto));
     }
 
     @Test
     void addUserWithException() {
-        userService.addUser(userDto);
+        UserDto added = userService.addUser(userDto);
+        userDto.setId(added.getId());
         assertThatThrownBy(() -> userService.addUser(userDto)).hasMessage("User with email already exist");
     }
 
     @Test
     void updateUser() {
-        userService.addUser(userDto);
+        UserDto added = userService.addUser(userDto);
+        userDto.setId(added.getId());
         userDto.setName("new");
         UserDto result = userService.updateUser(userDto.getId(), userDto);
         assertThat(result, equalTo(userDto));
@@ -61,10 +59,11 @@ class UserServiceImplTest {
     @Test
     void updateUserWithException() {
         UserDto secondUser = UserDto.builder()
-                .name("second")
-                .email("second@gmail.com")
-                .build();
-        userService.addUser(userDto);
+                                    .name("second")
+                                    .email("second@gmail.com")
+                                    .build();
+        UserDto added = userService.addUser(userDto);
+        userDto.setId(added.getId());
         userService.addUser(secondUser);
         assertThatThrownBy(
                 () -> userService.updateUser(userDto.getId(), secondUser)).hasMessage("User with email already exist");
@@ -72,27 +71,32 @@ class UserServiceImplTest {
 
     @Test
     void getUser() {
-        userService.addUser(userDto);
+        UserDto added = userService.addUser(userDto);
+        userDto.setId(added.getId());
         UserDto result = userService.getUser(userDto.getId());
         assertThat(result, equalTo(userDto));
     }
 
     @Test
     void getUserWithException() {
-        assertThatThrownBy(
-                () -> userService.getUser(userDto.getId())).hasMessage(String.format("User %d not found", userDto.getId()));
+        userDto.setId(1L);
+        assertThatThrownBy(() -> userService.getUser(userDto.getId())).hasMessage(
+                String.format("User %d not found", userDto.getId())
+        );
     }
 
     @Test
     void deleteUser() {
-        userService.addUser(userDto);
+        UserDto added = userService.addUser(userDto);
+        userDto.setId(added.getId());
         userService.deleteUser(userDto.getId());
         assertThat(userService.getAllUsers().size(), equalTo(0));
     }
 
     @Test
     void getAllUsers() {
-        userService.addUser(userDto);
+        UserDto added = userService.addUser(userDto);
+        userDto.setId(added.getId());
         List<UserDto> result = userService.getAllUsers();
         assertThat(result, equalTo(List.of(userDto)));
     }

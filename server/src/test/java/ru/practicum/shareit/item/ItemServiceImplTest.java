@@ -3,9 +3,9 @@ package ru.practicum.shareit.item;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
+import ru.practicum.shareit.SimpleShareItTests;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithDate;
 import ru.practicum.shareit.user.UserService;
@@ -17,11 +17,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-
-@SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@TestPropertySource(properties = "application.properties")
-class ItemServiceImplTest {
+@TestPropertySource(value = "classpath:application.properties")
+class ItemServiceImplTest extends SimpleShareItTests {
 
     @Autowired
     private ItemService itemService;
@@ -34,44 +32,47 @@ class ItemServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        owner = UserDto.builder()
-                .id(1L)
-                .name("owner")
-                .email("owner@gmail.com")
-                .build();
+        owner = userService.addUser(
+                UserDto.builder()
+                       .name("owner")
+                       .email("owner@gmail.com")
+                       .build()
+        );
         itemDto = ItemDto.builder()
-                .id(1L)
-                .name("item 1")
-                .description("item 1")
-                .available(true)
-                .build();
-        userService.addUser(owner);
+                         .name("item 1")
+                         .description("item 1")
+                         .available(true)
+                         .build();
     }
 
     @Test
     void addItem() {
         ItemDto result = itemService.addItem(itemDto, owner.getId());
+        itemDto.setId(result.getId());
         assertThat(result, equalTo(itemDto));
     }
 
     @Test
     void updateItem() {
-        itemService.addItem(itemDto, owner.getId());
+        ItemDto added = itemService.addItem(itemDto, owner.getId());
         itemDto.setName("updated item");
+        itemDto.setId(added.getId());
         ItemDto result = itemService.updateItem(itemDto, itemDto.getId(), owner.getId());
         assertThat(result, equalTo(itemDto));
     }
 
     @Test
     void updateItemWithException() {
-        itemService.addItem(itemDto, owner.getId());
+        ItemDto added = itemService.addItem(itemDto, owner.getId());
+        itemDto.setId(added.getId());
         assertThatThrownBy(() -> itemService.updateItem(itemDto, itemDto.getId(), 100))
                 .hasMessage(String.format("Access is forbidden. User %s doesn't have access rights", 100));
     }
 
     @Test
     void getItemEachUserById() {
-        itemService.addItem(itemDto, owner.getId());
+        ItemDto added = itemService.addItem(itemDto, owner.getId());
+        itemDto.setId(added.getId());
         ItemDtoWithDate result = itemService.getItemEachUserById(itemDto.getId(), owner.getId());
         assertThat(result.getName(), equalTo(itemDto.getName()));
     }
@@ -81,13 +82,12 @@ class ItemServiceImplTest {
         itemService.addItem(itemDto, owner.getId());
         List<ItemDtoWithDate> result = itemService.getAllItemsOfOwner(owner.getId(), 0, 2);
         assertThat(result.size(), equalTo(1));
-
-
     }
 
     @Test
     void getItemsAvailableToRent() {
-        itemService.addItem(itemDto, owner.getId());
+        ItemDto added = itemService.addItem(itemDto, owner.getId());
+        itemDto.setId(added.getId());
         List<ItemDto> result = itemService.getItemsAvailableToRent("item", 0, 2);
         assertThat(result, equalTo(List.of(itemDto)));
     }

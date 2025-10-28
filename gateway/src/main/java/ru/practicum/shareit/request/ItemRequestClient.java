@@ -23,7 +23,7 @@ public class ItemRequestClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getAllRequestsForRequestor(long requestorId) {
-        return get("", requestorId);
+        return get(API_PREFIX, requestorId);
     }
 
     public ResponseEntity<Object> getAllRequests(long requestorId, int from, int size) {

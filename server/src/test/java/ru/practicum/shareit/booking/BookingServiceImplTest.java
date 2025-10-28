@@ -3,9 +3,9 @@ package ru.practicum.shareit.booking;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
+import ru.practicum.shareit.SimpleShareItTests;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Status;
@@ -19,12 +19,13 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 
-@SpringBootTest
-@TestPropertySource(properties = "application.properties")
+@TestPropertySource(value = "classpath:application.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-class BookingServiceImplTest {
+class BookingServiceImplTest extends SimpleShareItTests {
 
     @Autowired
     private BookingService bookingService;
@@ -37,65 +38,65 @@ class BookingServiceImplTest {
     private BookingDto output;
     private User owner;
     private User booker;
-    private Item item;
     private static final LocalDateTime START = LocalDateTime.now().plusDays(1);
     private static final LocalDateTime END = START.plusDays(2);
 
     @BeforeEach
     void setUp() {
-        owner = User.builder()
-                .id(1L)
-                .name("owner")
-                .email("owner@gmail.com")
-                .build();
-        booker = User.builder()
-                .id(2L)
-                .name("booker")
-                .email("booker@gmail.com")
-                .build();
-        item = Item.builder()
-                .id(1L)
-                .name("item")
-                .available(true)
-                .description("item 1")
-                .owner(owner)
-                .build();
+        owner = userRepository.save(
+                User.builder()
+                    .name("owner")
+                    .email("owner@gmail.com")
+                    .build()
+        );
+        booker = userRepository.save(
+                User.builder()
+                     .name("booker")
+                     .email("booker@gmail.com")
+                     .build()
+        );
+        final Item item = itemRepository.save(
+                Item.builder()
+                   .name("item")
+                   .available(true)
+                   .description("item 1")
+                   .owner(owner)
+                   .build()
+        );
         input = BookItemRequestDto.builder()
-                .itemId(1L)
-                .start(START)
-                .end(END)
-                .build();
+                                  .itemId(item.getId())
+                                  .start(START)
+                                  .end(END)
+                                  .build();
         output = BookingDto.builder()
-                .id(1L)
-                .start(START)
-                .end(END)
-                .item(new BookingDto.ItemBooking(item.getId(), item.getName()))
-                .booker(new BookingDto.Booker(booker.getId(), booker.getName()))
-                .status(Status.WAITING)
-                .build();
-        userRepository.save(owner);
-        userRepository.save(booker);
-        itemRepository.save(item);
+                           .start(START)
+                           .end(END)
+                           .item(new BookingDto.ItemBooking(item.getId(), item.getName()))
+                           .booker(new BookingDto.Booker(booker.getId(), booker.getName()))
+                           .status(Status.WAITING)
+                           .build();
     }
 
     @Test
     void addBooking() {
         BookingDto result = bookingService.addBooking(input, booker.getId());
+        output.setId(result.getId());
         assertThat(result, equalTo(output));
     }
 
     @Test
     void approveBooking() {
-        bookingService.addBooking(input, booker.getId());
-        BookingDto result = bookingService.approveBooking(1L, true, owner.getId());
+        BookingDto added = bookingService.addBooking(input, booker.getId());
+        BookingDto result = bookingService.approveBooking(added.getId(), true, owner.getId());
         assertThat(result.getStatus(), is(Status.APPROVED));
     }
 
     @Test
     void getBookingByIdIfOwnerOrBooker() {
-        bookingService.addBooking(input, booker.getId());
-        BookingDto result = bookingService.getBookingByIdIfOwnerOrBooker(output.getId(), owner.getId());
-        assertThat(result.getId(), equalTo(output.getId()));
+        BookingDto added = bookingService.addBooking(input, booker.getId());
+        BookingDto result = bookingService.getBookingByIdIfOwnerOrBooker(added.getId(), owner.getId());
+        output.setId(result.getId());
+        assertThat(result, equalTo(output));
     }
 
     @Test

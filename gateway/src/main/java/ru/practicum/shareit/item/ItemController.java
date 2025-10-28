@@ -19,7 +19,6 @@ import jakarta.validation.constraints.Min;
 public class ItemController {
     private final ItemClient itemClient;
 
-
     @PostMapping
     public ResponseEntity<Object> addItem(@Validated(Create.class) @RequestBody ItemDto itemDto,
                                           @RequestHeader("X-Sharer-User-Id") long userId) {
