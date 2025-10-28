@@ -34,15 +34,15 @@ class ItemServiceImplTest extends SimpleShareItTests {
     void setUp() {
         owner = userService.addUser(
                 UserDto.builder()
-                       .name("owner")
-                       .email("owner@gmail.com")
-                       .build()
+                        .name("owner")
+                        .email("owner@gmail.com")
+                        .build()
         );
         itemDto = ItemDto.builder()
-                         .name("item 1")
-                         .description("item 1")
-                         .available(true)
-                         .build();
+                .name("item 1")
+                .description("item 1")
+                .available(true)
+                .build();
     }
 
     @Test

@@ -12,7 +12,10 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ModelNotFoundException;
 import ru.practicum.shareit.exception.NoRootException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithDate;
+import ru.practicum.shareit.item.dto.ItemMapperNew;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.RequestRepository;
@@ -149,7 +152,8 @@ public class ItemServiceImpl implements ItemService {
 
         List<ItemDtoWithDate> result = new ArrayList<>();
         for (Item item : items) {
-            ItemDtoWithDate itemDtoWithDate = createItemDtoWithDateWithComments(item, comments.getOrDefault(item, Collections.emptyList()));
+            ItemDtoWithDate itemDtoWithDate = createItemDtoWithDateWithComments(item, comments.getOrDefault(item,
+                    Collections.emptyList()));
             result.add(itemDtoWithDate);
         }
         return result;

@@ -21,6 +21,7 @@ import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -69,7 +70,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto>  getBookingByUserSorted(long bookerId, State state, int from, int size) {
+    public List<BookingDto> getBookingByUserSorted(long bookerId, State state, int from, int size) {
         if (!userRepository.existsById(bookerId)) {
             throw new ModelNotFoundException("User not found");
         }
@@ -151,18 +152,24 @@ public class BookingServiceImpl implements BookingService {
         return from / size;
     }
 
-    /* если чекать пересечение else if (isBooked(start, end, item.get().getId())) {
-            throw new ValidationException("Dates is already booked");
-        }*/
     private boolean isValid(Item item, User booker) {
         if (!item.getAvailable()) {
             throw new ValidationException(String.format("Item %s is not available", item.getId()));
-        } else if (item.getOwner().getId() == booker.getId()) {
-            throw new ModelNotFoundException("User can not book his own item");
-        } else {
-            return true;
         }
+        if (Objects.equals(item.getOwner().getId(), booker.getId())) {
+            throw new ModelNotFoundException("User can not book his own item");
+        }
+        return true;
     }
+
+    private boolean isValidWithDates(Item item, User booker, LocalDateTime start, LocalDateTime end) {
+        isValid(item, booker);
+        if (!isBooked(start, end, item.getId())) {
+            throw new ValidationException("Dates is already booked");
+        }
+        return true;
+    }
+
 
     private Item fromOptionalToItem(long itemId) {
         return itemRepository.findById(itemId)
@@ -180,7 +187,7 @@ public class BookingServiceImpl implements BookingService {
                 .orElseThrow(() -> new ModelNotFoundException(String.format("User %s not found", userId)));
     }
 
-    /*private boolean isBooked(LocalDateTime start, LocalDateTime end, long itemId) {
+    private boolean isBooked(LocalDateTime start, LocalDateTime end, long itemId) {
         return bookingRepository.isFree(start, end, itemId);
-    }*/
+    }
 }

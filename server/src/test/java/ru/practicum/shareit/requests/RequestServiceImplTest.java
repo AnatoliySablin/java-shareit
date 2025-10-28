@@ -35,21 +35,21 @@ class RequestServiceImplTest extends SimpleShareItTests {
     void setUp() {
         user = userRepository.save(
                 User.builder()
-                    .name("user")
-                    .email("user@gmail.com")
-                    .build()
+                        .name("user")
+                        .email("user@gmail.com")
+                        .build()
         );
         anotherUser = userRepository.save(
                 User.builder()
-                    .name("another user")
-                    .email("another@gmail.com")
-                    .build()
+                        .name("another user")
+                        .email("another@gmail.com")
+                        .build()
         );
         requestDto = RequestDto.builder()
-                               .description("request")
-                               .requestorId(user.getId())
-                               .items(List.of())
-                               .build();
+                .description("request")
+                .requestorId(user.getId())
+                .items(List.of())
+                .build();
     }
 
     @Test

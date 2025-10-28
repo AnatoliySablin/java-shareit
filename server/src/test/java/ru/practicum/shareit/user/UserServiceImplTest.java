@@ -26,9 +26,9 @@ class UserServiceImplTest extends SimpleShareItTests {
     @BeforeEach
     void setUp() {
         userDto = UserDto.builder()
-                         .name("user")
-                         .email("user@gmail.com")
-                         .build();
+                .name("user")
+                .email("user@gmail.com")
+                .build();
     }
 
     @Test
@@ -59,9 +59,9 @@ class UserServiceImplTest extends SimpleShareItTests {
     @Test
     void updateUserWithException() {
         UserDto secondUser = UserDto.builder()
-                                    .name("second")
-                                    .email("second@gmail.com")
-                                    .build();
+                .name("second")
+                .email("second@gmail.com")
+                .build();
         UserDto added = userService.addUser(userDto);
         userDto.setId(added.getId());
         userService.addUser(secondUser);

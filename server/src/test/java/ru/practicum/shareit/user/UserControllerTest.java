@@ -32,76 +32,76 @@ class UserControllerTest extends MVCShareItTests {
     @BeforeEach
     void setup() {
         userDto = UserDto.builder()
-                         .id(1L)
-                         .name("user")
-                         .email("user@gmail.com")
-                         .build();
+                .id(1L)
+                .name("user")
+                .email("user@gmail.com")
+                .build();
     }
 
     @Test
     void addUser() throws Exception {
         Mockito.when(userService.addUser(userDto))
-               .thenReturn(userDto);
+                .thenReturn(userDto);
         mvc.perform(post("/users")
-                   .content(mapper.writeValueAsString(userDto))
-                   .characterEncoding(StandardCharsets.UTF_8)
-                   .contentType(MediaType.APPLICATION_JSON)
-                   .accept(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
-           .andExpect(jsonPath("$.name", is(userDto.getName())))
-           .andExpect(jsonPath("$.email", is(userDto.getEmail())));
+                        .content(mapper.writeValueAsString(userDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
+                .andExpect(jsonPath("$.name", is(userDto.getName())))
+                .andExpect(jsonPath("$.email", is(userDto.getEmail())));
     }
 
     @Test
     void updateUser() throws Exception {
         userDto.setName("new");
         Mockito.when(userService.updateUser(1L, userDto))
-               .thenReturn(userDto);
+                .thenReturn(userDto);
         mvc.perform(patch("/users/{userId}", 1L)
-                   .content(mapper.writeValueAsString(userDto))
-                   .characterEncoding(StandardCharsets.UTF_8)
-                   .contentType(MediaType.APPLICATION_JSON)
-                   .accept(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
-           .andExpect(jsonPath("$.name", is(userDto.getName())))
-           .andExpect(jsonPath("$.email", is(userDto.getEmail())));
+                        .content(mapper.writeValueAsString(userDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
+                .andExpect(jsonPath("$.name", is(userDto.getName())))
+                .andExpect(jsonPath("$.email", is(userDto.getEmail())));
     }
 
     @Test
     void getUser() throws Exception {
         Mockito.when(userService.getUser(anyLong()))
-               .thenReturn(userDto);
+                .thenReturn(userDto);
         mvc.perform(get("/users/{userId}", 1L)
-                   .content(mapper.writeValueAsString(userDto))
-                   .contentType(MediaType.APPLICATION_JSON)
-                   .characterEncoding(StandardCharsets.UTF_8)
-                   .accept(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
-           .andExpect(jsonPath("$.name", is(userDto.getName())))
-           .andExpect(jsonPath("$.email", is(userDto.getEmail())));
+                        .content(mapper.writeValueAsString(userDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
+                .andExpect(jsonPath("$.name", is(userDto.getName())))
+                .andExpect(jsonPath("$.email", is(userDto.getEmail())));
     }
 
     @Test
     void deleteUser() throws Exception {
         mvc.perform(delete("/users/{userId}", 1L))
-           .andExpect(status().isOk());
+                .andExpect(status().isOk());
     }
 
     @Test
     void getAllUsers() throws Exception {
         Mockito.when(userService.getAllUsers())
-               .thenReturn(List.of(userDto));
+                .thenReturn(List.of(userDto));
         mvc.perform(get("/users")
-                   .content(mapper.writeValueAsString(List.of(userDto)))
-                   .characterEncoding(StandardCharsets.UTF_8)
-                   .contentType(MediaType.APPLICATION_JSON)
-                   .accept(MediaType.APPLICATION_JSON))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.[0].id", is(userDto.getId()), Long.class))
-           .andExpect(jsonPath("$.[0].name", is(userDto.getName())))
-           .andExpect(jsonPath("$.[0].email", is(userDto.getEmail())));
+                        .content(mapper.writeValueAsString(List.of(userDto)))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[0].id", is(userDto.getId()), Long.class))
+                .andExpect(jsonPath("$.[0].name", is(userDto.getName())))
+                .andExpect(jsonPath("$.[0].email", is(userDto.getEmail())));
     }
 }

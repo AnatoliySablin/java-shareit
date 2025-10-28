@@ -27,54 +27,53 @@ import static org.hamcrest.Matchers.is;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class BookingServiceImplTest extends SimpleShareItTests {
 
+    private static final LocalDateTime START = LocalDateTime.now().plusDays(1);
+    private static final LocalDateTime END = START.plusDays(2);
     @Autowired
     private BookingService bookingService;
     @Autowired
     private ItemRepository itemRepository;
     @Autowired
     private UserRepository userRepository;
-
     private BookItemRequestDto input;
     private BookingDto output;
     private User owner;
     private User booker;
-    private static final LocalDateTime START = LocalDateTime.now().plusDays(1);
-    private static final LocalDateTime END = START.plusDays(2);
 
     @BeforeEach
     void setUp() {
         owner = userRepository.save(
                 User.builder()
-                    .name("owner")
-                    .email("owner@gmail.com")
-                    .build()
+                        .name("owner")
+                        .email("owner@gmail.com")
+                        .build()
         );
         booker = userRepository.save(
                 User.builder()
-                     .name("booker")
-                     .email("booker@gmail.com")
-                     .build()
+                        .name("booker")
+                        .email("booker@gmail.com")
+                        .build()
         );
         final Item item = itemRepository.save(
                 Item.builder()
-                   .name("item")
-                   .available(true)
-                   .description("item 1")
-                   .owner(owner)
-                   .build()
+                        .name("item")
+                        .available(true)
+                        .description("item 1")
+                        .owner(owner)
+                        .build()
         );
         input = BookItemRequestDto.builder()
-                                  .itemId(item.getId())
-                                  .start(START)
-                                  .end(END)
-                                  .build();
+                .itemId(item.getId())
+                .start(START)
+                .end(END)
+                .build();
         output = BookingDto.builder()
-                           .start(START)
-                           .end(END)
-                           .item(new BookingDto.ItemBooking(item.getId(), item.getName()))
-                           .booker(new BookingDto.Booker(booker.getId(), booker.getName()))
-                           .status(Status.WAITING)
-                           .build();
+                .start(START)
+                .end(END)
+                .item(new BookingDto.ItemBooking(item.getId(), item.getName()))
+                .booker(new BookingDto.Booker(booker.getId(), booker.getName()))
+                .status(Status.WAITING)
+                .build();
     }
 
     @Test

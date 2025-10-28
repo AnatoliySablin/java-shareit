@@ -28,99 +28,98 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = BookingController.class)
 class BookingControllerTest extends MVCShareItTests {
 
-    @MockBean
-    private BookingService bookingService;
-
-    private BookingDto outputDto;
-    private BookItemRequestDto inputDto;
-    private final LocalDateTime START = LocalDateTime.now().plusDays(1);
     private static final LocalDateTime END = LocalDateTime.now().plusDays(2);
     private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
     private static final long USER_ID = 1L;
+    private final LocalDateTime START = LocalDateTime.now().plusDays(1);
+    @MockBean
+    private BookingService bookingService;
+    private BookingDto outputDto;
+    private BookItemRequestDto inputDto;
 
     @BeforeEach
     void setUp() {
         inputDto = BookItemRequestDto.builder()
-                                     .itemId(1L)
-                                     .start(START)
-                                     .end(END)
-                                     .build();
+                .itemId(1L)
+                .start(START)
+                .end(END)
+                .build();
         outputDto = BookingDto.builder()
-                              .start(START)
-                              .end(END)
-                              .item(new BookingDto.ItemBooking(1L, "item"))
-                              .build();
+                .start(START)
+                .end(END)
+                .item(new BookingDto.ItemBooking(1L, "item"))
+                .build();
     }
 
     @Test
     void addBooking() throws Exception {
         Mockito.when(bookingService.addBooking(any(), anyLong()))
-               .thenReturn(outputDto);
+                .thenReturn(outputDto);
         mvc.perform(post("/bookings")
-                   .content(mapper.writeValueAsString(inputDto))
-                   .accept(MediaType.APPLICATION_JSON)
-                   .contentType(MediaType.APPLICATION_JSON)
-                   .characterEncoding(StandardCharsets.UTF_8)
-                   .header("X-Sharer-User-Id", USER_ID))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.start", startsWith(START.format(FORMAT)), String.class))
-           .andExpect(jsonPath("$.end", startsWith(END.format(FORMAT)), String.class));
+                        .content(mapper.writeValueAsString(inputDto))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", USER_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.start", startsWith(START.format(FORMAT)), String.class))
+                .andExpect(jsonPath("$.end", startsWith(END.format(FORMAT)), String.class));
     }
 
     @Test
     void approveBooking() throws Exception {
         Mockito.when(bookingService.approveBooking(anyLong(), any(), anyLong()))
-               .thenReturn(outputDto);
+                .thenReturn(outputDto);
         mvc.perform(patch("/bookings/{bookingId}", 1L)
-                   .accept(MediaType.APPLICATION_JSON)
-                   .contentType(MediaType.APPLICATION_JSON)
-                   .characterEncoding(StandardCharsets.UTF_8)
-                   .header("X-Sharer-User-Id", USER_ID)
-                   .param("approved", String.valueOf(true)))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.start", startsWith(START.format(FORMAT)), String.class))
-           .andExpect(jsonPath("$.end", startsWith(END.format(FORMAT)), String.class));
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", USER_ID)
+                        .param("approved", String.valueOf(true)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.start", startsWith(START.format(FORMAT)), String.class))
+                .andExpect(jsonPath("$.end", startsWith(END.format(FORMAT)), String.class));
     }
 
     @Test
     void getBooking() throws Exception {
         Mockito.when(bookingService.getBookingByIdIfOwnerOrBooker(anyLong(), anyLong()))
-               .thenReturn(outputDto);
+                .thenReturn(outputDto);
         mvc.perform(get("/bookings/{bookingId}", 1L)
-                   .accept(MediaType.APPLICATION_JSON)
-                   .contentType(MediaType.APPLICATION_JSON)
-                   .characterEncoding(StandardCharsets.UTF_8)
-                   .header("X-Sharer-User-Id", USER_ID))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$.start", startsWith(START.format(FORMAT)), String.class))
-           .andExpect(jsonPath("$.end", startsWith(END.format(FORMAT)), String.class));
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", USER_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.start", startsWith(START.format(FORMAT)), String.class))
+                .andExpect(jsonPath("$.end", startsWith(END.format(FORMAT)), String.class));
     }
 
     @Test
     void getBookingByUserSorted() throws Exception {
         Mockito.when(bookingService.getBookingByUserSorted(anyLong(), any(), anyInt(), anyInt()))
-               .thenReturn(List.of(outputDto));
+                .thenReturn(List.of(outputDto));
         mvc.perform(get("/bookings")
-                   .accept(MediaType.APPLICATION_JSON)
-                   .contentType(MediaType.APPLICATION_JSON)
-                   .characterEncoding(StandardCharsets.UTF_8)
-                   .header("X-Sharer-User-Id", USER_ID))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$[0].start", startsWith(START.format(FORMAT)), String.class))
-           .andExpect(jsonPath("$[0].end", startsWith(END.format(FORMAT)), String.class));
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", USER_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].start", startsWith(START.format(FORMAT)), String.class))
+                .andExpect(jsonPath("$[0].end", startsWith(END.format(FORMAT)), String.class));
     }
 
     @Test
     void getBookingsForItemOwner() throws Exception {
         Mockito.when(bookingService.getBookingByItemOwner(anyLong(), any(), anyInt(), anyInt()))
-               .thenReturn(List.of(outputDto));
+                .thenReturn(List.of(outputDto));
         mvc.perform(get("/bookings/owner")
-                   .accept(MediaType.APPLICATION_JSON)
-                   .contentType(MediaType.APPLICATION_JSON)
-                   .characterEncoding(StandardCharsets.UTF_8)
-                   .header("X-Sharer-User-Id", USER_ID))
-           .andExpect(status().isOk())
-           .andExpect(jsonPath("$[0].start", startsWith(START.format(FORMAT)), String.class))
-           .andExpect(jsonPath("$[0].end", startsWith(END.format(FORMAT)), String.class));
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", USER_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].start", startsWith(START.format(FORMAT)), String.class))
+                .andExpect(jsonPath("$[0].end", startsWith(END.format(FORMAT)), String.class));
     }
 }

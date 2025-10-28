@@ -20,9 +20,9 @@ public class MyExceptionHandler {
     public ValidationErrorResponse handleConstraintValidationException(ConstraintViolationException ex) {
         log.error(ex.getMessage());
         final List<Violation> violations = ex.getConstraintViolations().stream()
-                                             .map(violation -> new Violation(
-                                                     violation.getMessage()))
-                                             .collect(Collectors.toList());
+                .map(violation -> new Violation(
+                        violation.getMessage()))
+                .collect(Collectors.toList());
         return new ValidationErrorResponse(violations);
     }
 
@@ -31,7 +31,7 @@ public class MyExceptionHandler {
     public Violation handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         log.error(ex.getMessage());
         return ex.getBindingResult().getFieldErrors().stream().findFirst()
-                 .map(error -> new Violation(error.getDefaultMessage())).orElse(new Violation(ex.getMessage()));
+                .map(error -> new Violation(error.getDefaultMessage())).orElse(new Violation(ex.getMessage()));
     }
 
     @ExceptionHandler

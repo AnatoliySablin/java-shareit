@@ -12,7 +12,9 @@ import java.util.List;
 public interface RequestMapper {
     @Mapping(source = "request.requestor.id", target = "requestorId")
     RequestDto toRequestDto(Request request);
+
     @Mapping(source = "requestDto.id", target = "id")
     Request toRequest(RequestDto requestDto, User requestor);
+
     List<RequestDto> toRequestDtoList(List<Request> requests);
 }
