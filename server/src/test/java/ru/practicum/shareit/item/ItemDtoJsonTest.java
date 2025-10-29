@@ -15,23 +15,24 @@ class ItemDtoJsonTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void testSerializeAndDeserializeItemDto() throws Exception {
-        ItemDto originalDto = ItemDto.builder()
+    void testSerializeItemDto() throws Exception {
+        ItemDto dto = ItemDto.builder()
                 .id(1L)
                 .name("Laptop")
                 .description("A powerful laptop for work")
                 .available(true)
                 .requestId(100L)
                 .build();
-
-        String jsonString = objectMapper.writeValueAsString(originalDto);
-        ItemDto parsedDto = objectMapper.readValue(jsonString, ItemDto.class);
-        assertThat(parsedDto.getId()).isEqualTo(originalDto.getId());
-        assertThat(parsedDto.getName()).isEqualTo(originalDto.getName());
-        assertThat(parsedDto.getDescription()).isEqualTo(originalDto.getDescription());
-        assertThat(parsedDto.getAvailable()).isEqualTo(originalDto.getAvailable());
+        String jsonString = objectMapper.writeValueAsString(dto);
         assertThat(jsonString)
                 .contains("\"id\":1")
-                .contains("\"name\":\"Laptop\"");
+                .contains("\"name\":\"Laptop\"")
+                .contains("\"description\":\"A powerful laptop for work\"")
+                .contains("\"available\":true")
+                .contains("\"requestId\":100");
+        assertThat(jsonString).isEqualTo(
+                "{\"id\":1,\"name\":\"Laptop\",\"description\":\"A powerful laptop for work\",\"available\":true," +
+                        "\"requestId\":100}"
+        );
     }
 }
